@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Trámites Institucionales</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="styler.css">
+</head>
+<body>
+
+  <!-- Logo oficial -->
+  <div class="header">
+    <img src="logo.jpeg" alt="Logo" class="logo">
+  </div>
+
+  <div class="container">
+
+    <h1>Registro</h1>
+    <p class="subtitle">Seleccione el trámite que desea realizar</p>
+
+    <!-- MENSAJE GLOBAL DE CONFIRMACIÓN -->
+    <p id="mensajeGlobal" class="mensaje hidden"></p>
+
+    <!-- Selector de trámite -->
+    <select id="selectorTramite" onchange="seleccionarTramite(this.value)">
+      <option value="">Seleccione un trámite</option>
+      <option value="Beca_Comision">Beca Comisión</option>
+      <option value="Contrato_Sustituto">Sustituto de Becario</option>
+      <option value="Servicio_Social">Servicio Social, Prácticas y Estadías</option>
+      <option value="Servidor_Publico_Mes">Servidor Público del Mes</option>
+      <option value="Capacitacion">Capacitación</option>
+      <option value="Evaluaciones_Nuevo_Ingreso">Evaluaciones Nuevo Ingreso</option>
+    </select>
+
+    <!-- Formulario -->
+    <form id="formulario" class="hidden">
+
+      <h2 id="tituloTramite"></h2>
+
+      <input type="text" id="nombre" placeholder="Nombre(s)" required>
+      <input type="text" id="apellidos" placeholder="Apellidos" required>
+      <input type="tel" id="telefono" placeholder="Número de teléfono" required>
+      <input type="email" id="correo" placeholder="Correo electrónico" required>
+
+      <!-- Campo SOLO para Servidor Público del Mes -->
+      <input
+        type="text"
+        id="direccion"
+        placeholder="Dirección de procedencia"
+        class="hidden">
+
+      <!-- Campo SOLO para Beca Comisión -->
+      <select id="nivelEscolar" class="hidden">
+        <option value="">Seleccione nivel escolar</option>
+        <option value="Educación Inicial">Educación Inicial</option>
+        <option value="Preescolar">Preescolar</option>
+        <option value="Preescolar Indigena">Preescolar Indigena</option>
+        <option value="Educación Especial">Educación Especial</option>
+        <option value="Primaria Indigena">Primaria Indigena</option>
+        <option value="Primaria General">Primaria General</option>
+        <option value="Secundaria General">Secundaria General</option>
+        <option value="Secundaria Tecnica">Secundaria Tecnica</option>
+        <option value="Telesecundaria">Telesecundaria</option>
+      </select>
+
+      <button type="submit">Enviar Registro</button>
+
+      <p id="mensaje" class="mensaje"></p>
+
+    </form>
+
+  </div>
+
+  <script src="scriptr.js"></script>
+</body>
+</html>

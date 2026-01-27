@@ -1,0 +1,113 @@
+* {
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  
+  body {
+    background: #f7f5f2;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* Header con logo */
+  .header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px auto 0 auto;
+  }
+  
+  .logo {
+    height: 100px;
+    object-fit: contain;
+  }
+  
+  /* Contenedor principal */
+  .container {
+    max-width: 480px;
+    margin: 20px auto 40px auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  }
+  
+  h1 {
+    text-align: center;
+    margin-bottom: 5px;
+    color: #7A1F2B;
+  }
+  
+  .subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 20px;
+  }
+  
+  /* Selector */
+  #selectorTramite {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  /* Formulario */
+  form {
+    margin-top: 10px;
+  }
+  
+  input,
+  select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+  }
+  
+  /* Botón */
+  form button {
+    width: 100%;
+    padding: 12px;
+    background: #D8C7A3;
+    border: none;
+    color: #3a3a3a;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  form button:hover {
+    background: #C2B28F;
+  }
+  
+  /* Utilidades */
+  .hidden {
+    display: none;
+  }
+  
+  .mensaje {
+    text-align: center;
+    margin-top: 10px;
+    font-weight: bold;
+  }
+  
+  /* MENSAJE DE ÉXITO (AGREGADO) */
+  .mensaje.exito {
+    color: #2e7d32; /* Verde formal institucional */
+  }
+  
+  /* MENSAJE GLOBAL (AGREGADO) */
+  #mensajeGlobal {
+    margin-bottom: 15px;
+  }
+  
+  /* Responsive */
+  @media (max-width: 600px) {
+    .logo {
+      height: 70px;
+    }
+  }
+  
