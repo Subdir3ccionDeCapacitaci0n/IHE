@@ -1,0 +1,188 @@
+:root {
+  --guinda: #7A1F2B;
+  --dorado: #D8C7A3;
+  --blanco: #ffffff;
+  --fondo: #1a1a1a;
+  /* Proporciones de columnas espejo para Header y Filas */
+  --col-tramite: 1fr;
+  --col-usuario: 1.5fr;
+  --col-controles: 200px; /* Espacio exacto para select + botón OK */
+  --col-hora: 120px;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--fondo);
+  color: var(--blanco);
+}
+
+.main-container {
+  padding: 20px;
+  max-width: 1300px; 
+  margin: auto;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 3px solid var(--dorado);
+  margin-bottom: 20px;
+}
+
+#reloj { font-size: 2.5rem; font-weight: bold; color: var(--dorado); }
+
+/* --- ENCABEZADO DE LA TABLA --- */
+.grid-header {
+  display: grid;
+  grid-template-columns: var(--col-tramite) var(--col-usuario) var(--col-controles) var(--col-hora);
+  gap: 15px;
+  padding: 15px 20px;
+  background: var(--guinda);
+  font-weight: bold;
+  border-radius: 8px 8px 0 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  align-items: center;
+}
+
+/* Alineación específica para los títulos del header */
+.grid-header span:nth-child(3) { text-align: center; }
+.grid-header span:nth-child(4) { text-align: right; }
+
+.lista-avisos {
+  list-style: none;
+  padding: 0; margin: 0;
+}
+
+/* --- FILAS DE REGISTROS --- */
+.item-aviso {
+  display: grid;
+  grid-template-columns: var(--col-tramite) var(--col-usuario) var(--col-controles) var(--col-hora);
+  gap: 15px;
+  padding: 15px 20px;
+  background: #2a2a2a;
+  margin-top: 5px;
+  align-items: center;
+  border-left: 12px solid #888;
+  animation: slideIn 0.5s ease-out;
+  transition: all 0.3s ease;
+}
+
+/* --- CONTROLES DE ATENCIÓN --- */
+.atencion-controles {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center; /* Centra los controles bajo el título ATENCIÓN */
+}
+
+.atencion-controles select {
+  background: #1a1a1a;
+  color: white;
+  border: 1px solid var(--dorado);
+  border-radius: 4px;
+  padding: 6px;
+  font-size: 0.85rem;
+  width: 130px;
+  cursor: pointer;
+}
+
+.atencion-controles button {
+  background: var(--guinda);
+  color: white;
+  border: 1px solid var(--dorado);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s;
+}
+
+.atencion-controles button:hover {
+  background: #962635;
+  transform: scale(1.05);
+}
+
+.atencion-controles button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* --- ESTILOS DE TEXTO --- */
+.tramite-tag {
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 1px;
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.usuario-nombre {
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: var(--blanco);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hora {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--dorado);
+  text-align: right;
+}
+
+/* --- COLORES POR PESTAÑA --- */
+.item-aviso[data-tramite="Beca_Comision"] { border-left-color: #f11ab0 !important; }
+.item-aviso[data-tramite="Beca_Comision"] .tramite-tag { color: #f11ab0; }
+
+.item-aviso[data-tramite="Servicio_Social"] { border-left-color: #00fff7 !important; }
+.item-aviso[data-tramite="Servicio_Social"] .tramite-tag { color: #00fff7; }
+
+.item-aviso[data-tramite="Servidor_Publico_Mes"] { border-left-color: #f1c40f !important; }
+.item-aviso[data-tramite="Servidor_Publico_Mes"] .tramite-tag { color: #f1c40f; }
+
+.item-aviso[data-tramite="Contrato_Sustituto"] { border-left-color: #e67e22 !important; }
+.item-aviso[data-tramite="Contrato_Sustituto"] .tramite-tag { color: #e67e22; }
+
+.item-aviso[data-tramite="Capacitacion"] { border-left-color: #bc401a !important; }
+.item-aviso[data-tramite="Capacitacion"] .tramite-tag { color: #bc401a; }
+
+.item-aviso[data-tramite="Evaluaciones_Nuevo_Ingreso"] { border-left-color: #9b59b6 !important; }
+.item-aviso[data-tramite="Evaluaciones_Nuevo_Ingreso"] .tramite-tag { color: #9b59b6; }
+
+/* --- ANIMACIONES --- */
+.item-aviso.nuevo {
+  background: #333333;
+  animation: slideIn 0.5s ease-out, pulse 2s infinite;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0% { box-shadow: inset 0 0 0 0 rgba(216, 199, 163, 0.2); }
+  70% { box-shadow: inset 0 0 20px 0 rgba(216, 199, 163, 0.3); }
+  100% { box-shadow: inset 0 0 0 0 rgba(216, 199, 163, 0); }
+}
+
+.status { text-align: center; margin-top: 20px; font-size: 0.8rem; color: #666; }
+
+/* Estilo para fila ya atendida */
+.item-aviso.finalizado {
+  opacity: 0.7;
+  border-left-color: #27ae60 !important; /* Cambia el borde a verde */
+  background: #1e1e1e;
+}
+
+.btn-check {
+  background-color: #27ae60 !important;
+  border-color: #27ae60 !important;
+}
