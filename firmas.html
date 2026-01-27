@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Firmas</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f3e7d3; /* arena */
+      padding: 20px;
+      margin: 0;
+    }
+
+    h2 { color: #6b1d3a; } /* guinda */
+
+    /* 🔹 LOGIN MÁS GRANDE Y CENTRADO */
+    .login {
+      max-width: 520px;
+      width: 90%;
+      margin: 80px auto;
+      padding: 30px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+      text-align: center;
+    }
+
+    .panel {
+      max-width: 650px;
+      margin: auto;
+    }
+
+    .card {
+      background: white;
+      padding: 14px;
+      margin: 12px 0;
+      border-radius: 10px;
+      box-shadow: 0 3px 6px rgba(0,0,0,.1);
+      border-left: 6px solid #6b1d3a;
+    }
+
+    button {
+      margin-top: 8px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      background: #6b1d3a;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover { opacity: .9; }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .cerrar {
+      background: #a94442;
+    }
+
+    .seccion {
+      margin-top: 25px;
+    }
+
+    .seccion h3 {
+      border-bottom: 2px solid #6b1d3a;
+      padding-bottom: 4px;
+      color: #6b1d3a;
+    }
+
+  </style>
+</head>
+<body>
+
+<div class="login" id="loginBox">
+  <h2>Acceso Firmas</h2>
+  <input id="usuario" placeholder="Usuario (TANIA o MARI)">
+  <input id="password" type="password" placeholder="Contraseña">
+  <button onclick="login()">Entrar</button>
+  <p id="estadoLogin"></p>
+</div>
+
+<div class="panel" id="panelBox" style="display:none;">
+
+  <div class="topbar">
+    <h2>Panel de Firmas</h2>
+    <button class="cerrar" onclick="cerrarSesion()">Cerrar sesión</button>
+  </div>
+
+  <div class="seccion">
+    <h3>🕒 Pendientes de tu firma</h3>
+    <div id="listaPendientes"></div>
+  </div>
+
+  <div class="seccion">
+    <h3>✅ Ya firmados</h3>
+    <div id="listaFirmados"></div>
+  </div>
+
+</div>
+
+<script src="scriptf.js"></script>
+</body>
+</html>

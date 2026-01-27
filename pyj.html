@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Pases y Justificantes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #f3e7d3; /* arena */
+      margin: 0;
+      padding: 30px 15px;
+    }
+
+    .container {
+      max-width: 520px;
+      margin: auto;
+      background: white;
+      padding: 25px 28px;
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,.08);
+      border-top: 8px solid #6b1d3a; /* guinda */
+    }
+
+    h2 {
+      text-align: center;
+      color: #6b1d3a;
+      margin-bottom: 18px;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      color: #6b1d3a;
+      margin-top: 10px;
+      display: block;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 5px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #d8c3a5;
+      font-size: 14px;
+      background: #faf7f2;
+      box-sizing: border-box;
+      transition: .2s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #6b1d3a;
+      background: #fff;
+      box-shadow: 0 0 0 2px rgba(107,29,58,.15);
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 10px;
+      border-radius: 10px;
+      border: none;
+      background: #6b1d3a;
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    button:hover {
+      background: #8a2a4a;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0,0,0,.15);
+    }
+
+    .hidden { display: none; }
+
+    #pase, #justificante {
+      background: #f9f4ec;
+      padding: 12px 14px;
+      border-radius: 10px;
+      margin-top: 10px;
+      border-left: 5px solid #6b1d3a;
+    }
+
+    #estado {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 14px;
+      min-height: 20px;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Registro de salida</h2>
+
+  <select id="tipo">
+    <option value="">Selecciona trámite</option>
+    <option value="PASE">Pase de salida</option>
+    <option value="JUSTIFICANTE">Justificante</option>
+  </select>
+
+  <input type="text" id="nombre" placeholder="Nombre" required>
+  <input type="text" id="apellidos" placeholder="Apellidos" required>
+
+  <!-- PASE -->
+  <div id="pase" class="hidden">
+    <label>Hora de salida</label>
+    <input type="time" id="horaSalida">
+
+    <label>Hora de llegada</label>
+    <input type="time" id="horaLlegada">
+
+    <select id="asunto">
+      <option value="">Seleccione asunto</option>
+      <option value="Personal">Personal</option>
+      <option value="Laboral">Laboral</option>
+      <option value="Salud">Salud</option>
+    </select>
+  </div>
+
+  <!-- JUSTIFICANTE -->
+  <div id="justificante" class="hidden">
+    <label>Fecha de la falta</label>
+    <input type="date" id="fechaFalta">
+
+    <label>Motivo</label>
+    <input type="text" id="motivo" placeholder="Motivo">
+
+    <label>Número de oficio</label>
+    <input type="text" id="numeroOficio" placeholder="Número de oficio">
+  </div>
+
+  <button onclick="enviar()">Enviar solicitud</button>
+
+  <div id="estado"></div>
+</div>
+
+<script src="pyjs.js"></script>
+
+</body>
+</html>
