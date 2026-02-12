@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>Seguimiento</title>
+
+<style>
+:root{
+  --arena:#F3E9DC;
+  --guinda:#7B1E3A;
+}
+
+body{
+  font-family:system-ui;
+  background:var(--arena);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  margin:0;
+}
+
+/* 🔥 LOGO CENTRADO ARRIBA */
+.logo{
+  height:85px;
+  margin-bottom:25px;
+  object-fit:contain;
+}
+
+.card{
+  background:white;
+  padding:30px;
+  border-radius:16px;
+  width:320px;
+  text-align:center;
+  box-shadow:0 15px 30px rgba(0,0,0,.15);
+}
+
+h3{
+  color:var(--guinda);
+  margin-top:0;
+}
+
+input{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #ddd;
+  margin-top:10px;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  background:var(--guinda);
+  color:white;
+  margin-top:10px;
+  cursor:pointer;
+}
+
+.result{
+  margin-top:15px;
+  font-weight:500;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🔥 LOGO -->
+<img src="logo.jpeg" class="logo">
+
+<div class="card">
+<h3>Consultar trámite</h3>
+
+<input id="correo" placeholder="tu correo"/>
+<button onclick="buscar()">Consultar</button>
+
+<div class="result" id="resultado"></div>
+</div>
+
+<script>
+const URL="https://script.google.com/macros/s/AKfycbwF2AFhHHZE75R0IVADXkegP9xtfGJm5SQGCLxmxf6tzMQwT1ZYbWztWcM1xnOHirhf/exec";
+
+async function buscar(){
+
+  const correo=document.getElementById("correo").value;
+
+  const r=await fetch(URL+"?action=consulta&correo="+correo);
+  const d=await r.json();
+
+  const div=document.getElementById("resultado");
+
+  if(!d.encontrado){
+    div.innerHTML="No se encontró trámite";
+    return;
+  }
+
+  div.innerHTML=`
+    <p><b>${d.nombre}</b></p>
+    <p>Estado: ${d.estado}</p>
+  `;
+}
+</script>
+</body>
+</html>

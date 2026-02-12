@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>Panel de Trámites</title>
+
+<style>
+:root{
+  --arena:#F3E9DC;
+  --guinda:#7B1E3A;
+  --guinda2:#5A122A;
+  --blanco:#fff;
+}
+
+body{
+  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--arena);
+  margin:0;
+  padding:40px;
+}
+
+/* 🔥 HEADER CON LOGO */
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+.logo{
+  height:65px;
+  object-fit:contain;
+}
+
+h1{
+  color:var(--guinda);
+  margin:0;
+}
+
+/* CARD */
+.card{
+  background:white;
+  padding:20px;
+  border-radius:14px;
+  box-shadow:0 12px 25px rgba(0,0,0,.08);
+}
+
+/* TABLA */
+table{
+  width:100%;
+  border-collapse: collapse;
+}
+
+th{
+  background:var(--guinda);
+  color:white;
+  padding:12px;
+  text-align:left;
+}
+
+td{
+  padding:10px;
+  border-bottom:1px solid #eee;
+}
+
+tr:hover{
+  background:#faf6f2;
+}
+
+/* BOTONES */
+button{
+  border:none;
+  padding:6px 10px;
+  border-radius:8px;
+  cursor:pointer;
+  color:white;
+  font-size:12px;
+  margin-right:4px;
+}
+
+.recibido{ background:#2563eb }
+.revision{ background:#d97706 }
+.procedente{ background:#16a34a }
+.obs{ background:var(--guinda2) }
+
+textarea{
+  width:100%;
+  border-radius:8px;
+  border:1px solid #ddd;
+  padding:6px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🔥 NUEVO HEADER -->
+<div class="header">
+  <h1>Panel de Trámites</h1>
+  <img src="logo.jpeg" class="logo">
+</div>
+
+<div class="card">
+<table id="tabla">
+<thead>
+<tr>
+<th>Fecha</th>
+<th>Nombre</th>
+<th>Correo</th>
+<th>Estado</th>
+<th>Observaciones</th>
+<th>Acciones</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<script>
+const URL="https://script.google.com/macros/s/AKfycbwF2AFhHHZE75R0IVADXkegP9xtfGJm5SQGCLxmxf6tzMQwT1ZYbWztWcM1xnOHirhf/exec";
+
+async function cargar(){
+  const res=await fetch(URL+"?action=admin");
+  const data=await res.json();
+
+  const tbody=document.querySelector("#tabla tbody");
+  tbody.innerHTML="";
+
+  data.forEach(t=>{
+    const tr=document.createElement("tr");
+
+    tr.innerHTML=`
+      <td>${t.fecha}</td>
+      <td>${t.nombre}</td>
+      <td>${t.correo}</td>
+      <td>${t.estado}</td>
+      <td>
+        <textarea id="obs${t.fila}" rows="2"></textarea>
+        <button class="obs" onclick="guardarObs('${t.hoja}',${t.fila})">Guardar</button>
+      </td>
+      <td>
+        <button class="recibido" onclick="estado('${t.hoja}',${t.fila},'Recibido')">Recibido</button>
+        <button class="revision" onclick="estado('${t.hoja}',${t.fila},'En revisión')">Revisión</button>
+        <button class="procedente" onclick="estado('${t.hoja}',${t.fila},'Procedente')">Procedente</button>
+      </td>
+    `;
+
+    tbody.appendChild(tr);
+  });
+}
+
+async function estado(hoja,fila,estado){
+  await fetch(URL,{
+    method:"POST",
+    body:JSON.stringify({action:"estado",hoja,fila,estado})
+  });
+  cargar();
+}
+
+async function guardarObs(hoja,fila){
+  const texto=document.getElementById("obs"+fila).value;
+
+  await fetch(URL,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"estado",
+      hoja,
+      fila,
+      estado:"Observaciones",
+      observaciones:texto
+    })
+  });
+
+  cargar();
+}
+
+cargar();
+</script>
+
+</body>
+</html>
