@@ -6,127 +6,95 @@ const estadoLogin = document.getElementById("estadoLogin");
 
 let usuarioActivo = null;
 
-/**************** ENTER PARA LOGIN ****************/
-document.getElementById("usuario").addEventListener("keydown", e => {
-  if (e.key === "Enter") login();
-});
-
-document.getElementById("password").addEventListener("keydown", e => {
-  if (e.key === "Enter") login();
-});
-
 /**************** LOGIN ****************/
+document.getElementById("usuario").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+document.getElementById("password").addEventListener("keydown", e => { if (e.key === "Enter") login(); });
+
 function login() {
   const usuario = document.getElementById("usuario").value.trim().toUpperCase();
   const password = document.getElementById("password").value.trim();
-
   estadoLogin.innerText = "";
+  if (!usuario || !password) { estadoLogin.innerText = "Ingresa usuario y contraseña"; return; }
 
-  if (!usuario || !password) {
-    estadoLogin.innerText = "Ingresa usuario y contraseña";
-    return;
-  }
-
-  fetch(URL, {
-    method: "POST",
-    body: JSON.stringify({ accion: "login", usuario, password })
-  })
-  .then(r => r.json())
-  .then(res => {
-    if (res.ok) {
-      usuarioActivo = usuario;
-      document.getElementById("loginBox").style.display = "none";
-      document.getElementById("panelBox").style.display = "block";
-      document.getElementById("password").value = "";
-      cargarRegistros();
-    } else {
-      estadoLogin.innerText = res.mensaje;
-    }
-  })
-  .catch(() => estadoLogin.innerText = "Error de conexión");
+  fetch(URL, { method: "POST", body: JSON.stringify({ accion: "login", usuario, password }) })
+    .then(r => r.json())
+    .then(res => {
+      if (res.ok) {
+        usuarioActivo = usuario;
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("panelBox").style.display = "block";
+        document.getElementById("password").value = "";
+        cargarRegistros();
+      } else estadoLogin.innerText = res.mensaje;
+    })
+    .catch(() => estadoLogin.innerText = "Error de conexión");
 }
 
 /**************** CARGAR REGISTROS ****************/
 function cargarRegistros() {
-  fetch(URL, {
-    method: "POST",
-    body: JSON.stringify({ accion: "pendientes", usuario: usuarioActivo })
-  })
-  .then(r => r.json())
-  .then(data => {
-    listaPendientes.innerHTML = "";
-    listaFirmados.innerHTML = "";
-
-    data.pendientes.forEach(reg => {
-      listaPendientes.appendChild(crearCard(reg, true));
-    });
-
-    data.firmados.forEach(reg => {
-      listaFirmados.appendChild(crearCard(reg, false));
-    });
-  })
-  .catch(() => alert("Error cargando registros"));
+  fetch(URL, { method: "POST", body: JSON.stringify({ accion: "pendientes", usuario: usuarioActivo }) })
+    .then(r => r.json())
+    .then(data => {
+      listaPendientes.innerHTML = "";
+      listaFirmados.innerHTML = "";
+      data.pendientes.forEach(reg => listaPendientes.appendChild(crearCard(reg, true)));
+      data.firmados.forEach(reg => listaFirmados.appendChild(crearCard(reg, false)));
+    })
+    .catch(() => alert("Error cargando registros"));
 }
 
 /**************** CREAR TARJETAS ****************/
-function crearCard(reg, mostrarBoton) {
+function crearCard(reg, esPendiente) {
   const div = document.createElement("div");
   div.className = "card";
+  div.innerHTML = `<b>${reg.tipo}</b><br>👤 ${reg.nombre}<br>🕒 ${reg.salida || ""}<br>📌 Motivo: ${reg.asunto || ""}<br>`;
 
-  if (reg.tipo === "PASE") {
-    div.innerHTML = `
-      <b>PASE DE SALIDA</b><br>
-      📅 ${reg.fecha}<br>
-      👤 ${reg.nombre}<br>
-      🕒 ${reg.salida} → ${reg.llegada}<br>
-      📌 ${reg.asunto}
-    `;
-  }
-
-  if (reg.tipo === "JUSTIFICANTE") {
-    div.innerHTML = `
-      <b>JUSTIFICANTE</b><br>
-      📥 Registrado: ${reg.fechaRegistro}<br>
-      ❌ Día de la falta: ${reg.fechaFalta}<br>
-      👤 ${reg.nombre}<br>
-      📝 ${reg.motivo}<br>
-      📄 Oficio: ${reg.numeroOficio || "N/A"}
-    `;
-  }
-
-  if (mostrarBoton) {
+  if (esPendiente) {
     const btn = document.createElement("button");
     btn.textContent = "Firmar";
-    btn.onclick = () => firmar(reg.tipo, reg.fila);
+    btn.onclick = () => {
+      let hora = "";
+      if (reg.tipo === "PASE" || reg.tipo === "DESAYUNO") {
+        hora = prompt("Confirma hora de regreso real (HH:mm):", new Date().toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit', hour12:false}));
+        if (!hora) return;
+      }
+      firmar(reg.tipo, reg.fila, hora);
+    };
     div.appendChild(btn);
   } else {
-    const ok = document.createElement("div");
-    ok.style.marginTop = "8px";
-    ok.style.color = "green";
-    ok.innerHTML = "✔ Ya firmaste";
-    div.appendChild(ok);
+    div.innerHTML += "<b style='color:green'>✔ Ya firmado</b>";
+    // Solo generar formato si NO es JUSTIFICANTE
+    if (reg.tipo !== "JUSTIFICANTE" && reg.tipo !== "DESAYUNO") {
+      const btnPDF = document.createElement("button");
+      btnPDF.textContent = "Generar Formato";
+      btnPDF.className = "formato-btn";
+      btnPDF.onclick = () => generarFormato(reg.fila, reg.tipo);
+      div.appendChild(btnPDF);
+    }
   }
-
   return div;
 }
 
 /**************** FIRMAR ****************/
-function firmar(tipo, fila) {
+function firmar(tipo, fila, horaLlegada) {
   fetch(URL, {
     method: "POST",
-    body: JSON.stringify({
-      accion: "firmar",
-      usuario: usuarioActivo,
-      tipo,
-      fila
+    body: JSON.stringify({ accion: "firmar", usuario: usuarioActivo, tipo, fila, horaLlegadaReal: horaLlegada })
+  })
+    .then(r => r.json())
+    .then(res => { alert(res.mensaje); cargarRegistros(); })
+    .catch(() => alert("Error de conexión"));
+}
+
+/**************** GENERAR FORMATO ****************/
+function generarFormato(fila, tipo) {
+  fetch(URL, { method: "POST", body: JSON.stringify({ accion: "generarFormato", fila, tipo }) })
+    .then(r => r.json())
+    .then(res => {
+      if (res.ok) window.open(res.mensaje, "_blank");
+      else alert("Error: " + res.mensaje);
     })
-  })
-  .then(r => r.json())
-  .then(res => {
-    alert(res.mensaje);
-    cargarRegistros();
-  })
-  .catch(() => alert("Error al firmar"));
+    .catch(() => alert("Error generando formato"));
 }
 
 /**************** CERRAR SESIÓN ****************/

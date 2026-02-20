@@ -6,27 +6,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
+    /* --- Reset y cuerpo --- */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', Tahoma, sans-serif;
       background: #f3e7d3; /* arena */
-      margin: 0;
-      padding: 30px 15px;
+      color: #4d2c3d;
+      padding: 20px;
     }
 
+    /* --- Contenedor principal --- */
     .container {
       max-width: 520px;
       margin: auto;
-      background: white;
-      padding: 25px 28px;
-      border-radius: 14px;
-      box-shadow: 0 10px 25px rgba(0,0,0,.08);
+      background: #fff;
+      padding: 28px 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
       border-top: 8px solid #6b1d3a; /* guinda */
     }
 
     h2 {
       text-align: center;
       color: #6b1d3a;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
     label {
@@ -46,8 +49,7 @@
       border: 1px solid #d8c3a5;
       font-size: 14px;
       background: #faf7f2;
-      box-sizing: border-box;
-      transition: .2s;
+      transition: 0.2s;
     }
 
     input:focus, select:focus {
@@ -60,29 +62,29 @@
     button {
       width: 100%;
       padding: 12px;
-      margin-top: 10px;
       border-radius: 10px;
       border: none;
       background: #6b1d3a;
-      color: white;
+      color: #fff;
       font-size: 15px;
       font-weight: bold;
       cursor: pointer;
-      transition: .2s;
+      transition: 0.2s;
     }
 
     button:hover {
       background: #8a2a4a;
       transform: translateY(-1px);
-      box-shadow: 0 4px 10px rgba(0,0,0,.15);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
     }
 
     .hidden { display: none; }
 
-    #pase, #justificante {
+    /* --- Secciones internas --- */
+    #pase, #justificante, #economico {
       background: #f9f4ec;
-      padding: 12px 14px;
-      border-radius: 10px;
+      padding: 14px 16px;
+      border-radius: 12px;
       margin-top: 10px;
       border-left: 5px solid #6b1d3a;
     }
@@ -91,12 +93,16 @@
       text-align: center;
       font-weight: bold;
       margin-top: 14px;
-      min-height: 20px;
+      min-height: 22px;
     }
 
+    /* --- Responsive --- */
     @media (max-width: 480px) {
       .container {
         padding: 20px;
+      }
+      input, select, button {
+        font-size: 14px;
       }
     }
   </style>
@@ -105,47 +111,52 @@
 <body>
 
 <div class="container">
-  <h2>Registro de salida</h2>
+  <h2>Registro de Solicitud</h2>
 
   <select id="tipo">
     <option value="">Selecciona trámite</option>
     <option value="PASE">Pase de salida</option>
+    <option value="DESAYUNO">Desayuno / Almuerzo</option>
+    <option value="ECONOMICO">Día económico</option>
     <option value="JUSTIFICANTE">Justificante</option>
   </select>
 
   <input type="text" id="nombre" placeholder="Nombre" required>
   <input type="text" id="apellidos" placeholder="Apellidos" required>
 
-  <!-- PASE -->
   <div id="pase" class="hidden">
     <label>Hora de salida</label>
     <input type="time" id="horaSalida">
-
-    <label>Hora de llegada</label>
+    <label>Hora de regreso</label>
     <input type="time" id="horaLlegada">
-
-    <select id="asunto">
-      <option value="">Seleccione asunto</option>
-      <option value="Personal">Personal</option>
-      <option value="Laboral">Laboral</option>
-      <option value="Salud">Salud</option>
-    </select>
+    <div id="contenedorAsunto">
+      <label>Asunto</label>
+      <select id="asunto">
+        <option value="">Seleccione asunto</option>
+        <option value="Personal">Personal</option>
+        <option value="Laboral">Laboral</option>
+        <option value="Salud">Salud</option>
+      </select>
+    </div>
   </div>
 
-  <!-- JUSTIFICANTE -->
+  <div id="economico" class="hidden">
+    <label>Fecha solicitada</label>
+    <input type="date" id="fechaEconomico">
+    <label>Motivo</label>
+    <input type="text" id="motivoEconomico" placeholder="Motivo del día económico">
+  </div>
+
   <div id="justificante" class="hidden">
     <label>Fecha de la falta</label>
     <input type="date" id="fechaFalta">
-
     <label>Motivo</label>
-    <input type="text" id="motivo" placeholder="Motivo">
-
+    <input type="text" id="motivo" placeholder="Motivo de la falta">
     <label>Número de oficio</label>
     <input type="text" id="numeroOficio" placeholder="Número de oficio">
   </div>
 
   <button onclick="enviar()">Enviar solicitud</button>
-
   <div id="estado"></div>
 </div>
 

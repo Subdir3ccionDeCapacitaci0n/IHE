@@ -3,79 +3,106 @@
 <head>
   <meta charset="UTF-8">
   <title>Panel de Firmas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
-      font-family: Arial;
+      font-family: Arial, sans-serif;
       background: #f3e7d3; /* arena */
       padding: 20px;
       margin: 0;
     }
 
-    h2 { color: #6b1d3a; } /* guinda */
+    h2 { color: #6b1d3a; text-align:center; }
 
-    /* 🔹 LOGIN MÁS GRANDE Y CENTRADO */
-    .login {
-      max-width: 520px;
-      width: 90%;
-      margin: 80px auto;
-      padding: 30px;
+    .login, .panel {
+      max-width: 650px;
+      margin: 40px auto;
+      padding: 28px 30px;
       background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-      text-align: center;
+      border-radius: 14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
     }
 
-    .panel {
-      max-width: 650px;
-      margin: auto;
+    .login input {
+      width: 100%;
+      padding: 10px 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #d8c3a5;
+      font-size: 14px;
+    }
+
+    .login button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border-radius: 10px;
+      border: none;
+      background: #6b1d3a;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .cerrar {
+      background: #a94442;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: none;
+      color: white;
+      cursor: pointer;
+    }
+
+    .seccion h3 {
+      color: #6b1d3a;
+      border-bottom: 2px solid #6b1d3a;
+      padding-bottom: 4px;
+      margin-bottom: 10px;
     }
 
     .card {
-      background: white;
-      padding: 14px;
+      background: #f9f4ec;
+      padding: 14px 16px;
       margin: 12px 0;
       border-radius: 10px;
-      box-shadow: 0 3px 6px rgba(0,0,0,.1);
       border-left: 6px solid #6b1d3a;
     }
 
-    button {
+    .card button {
       margin-top: 8px;
       padding: 8px 12px;
       border: none;
       border-radius: 6px;
       background: #6b1d3a;
       color: white;
-      cursor: pointer;
       font-weight: bold;
+      cursor: pointer;
     }
 
-    button:hover { opacity: .9; }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .card .formato-btn {
+      background: #0b5ed7;
+      margin-left: 6px;
     }
 
-    .cerrar {
-      background: #a94442;
-    }
+    .card b { display: block; margin-bottom: 6px; }
 
-    .seccion {
-      margin-top: 25px;
+    @media (max-width: 480px) {
+      .login, .panel { padding: 20px; margin: 20px 10px; }
+      .card { font-size: 14px; padding: 12px; }
     }
-
-    .seccion h3 {
-      border-bottom: 2px solid #6b1d3a;
-      padding-bottom: 4px;
-      color: #6b1d3a;
-    }
-
   </style>
 </head>
 <body>
 
+<!-- LOGIN -->
 <div class="login" id="loginBox">
   <h2>Acceso Firmas</h2>
   <input id="usuario" placeholder="Usuario (TANIA o MARI)">
@@ -84,8 +111,8 @@
   <p id="estadoLogin"></p>
 </div>
 
+<!-- PANEL -->
 <div class="panel" id="panelBox" style="display:none;">
-
   <div class="topbar">
     <h2>Panel de Firmas</h2>
     <button class="cerrar" onclick="cerrarSesion()">Cerrar sesión</button>
@@ -100,7 +127,6 @@
     <h3>✅ Ya firmados</h3>
     <div id="listaFirmados"></div>
   </div>
-
 </div>
 
 <script src="scriptf.js"></script>
