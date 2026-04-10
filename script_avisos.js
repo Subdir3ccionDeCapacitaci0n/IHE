@@ -25,12 +25,12 @@ setInterval(() => {
   document.getElementById('reloj').innerText = new Date().toLocaleTimeString();
 }, 1000);
 
-// Motor de recarga (8 segundos)
+// Motor de recarga (ajustado a 4 segundos para actualizar más rápido sin saturar)
 setInterval(() => {
   if (!enviandoDatos && colaPeticiones.length === 0) {
     fetchData();
   }
-}, 8000);
+}, 4000);
 
 async function fetchData() {
   try {
@@ -125,14 +125,22 @@ function renderizar(data) {
 }
 
 function marcarAtendido(tramite, usuario, index, btn) {
-  const empleado = document.getElementById(`sel-${index}`).value;
+  const selectElement = document.getElementById(`sel-${index}`);
+  const empleado = selectElement.value;
+  
   if (!empleado) return alert("Por favor, selecciona quién atendió.");
 
   const botonVisual = btn || event.target;
+
+  // BLOQUEO INMEDIATO DE AMBOS CONTROLES
   botonVisual.disabled = true;
   botonVisual.innerText = "⏳";
+  selectElement.disabled = true; // Bloquea la lista desplegable
+  selectElement.style.opacity = "0.5";
 
-  colaPeticiones.push({ tramite, usuario, empleado, btn: botonVisual });
+  // Metemos también el select a la cola para poder desbloquearlo si hay un error
+  colaPeticiones.push({ tramite, usuario, empleado, btn: botonVisual, select: selectElement });
+  
   procesarColaPeticiones();
 }
 
@@ -150,14 +158,22 @@ async function procesarColaPeticiones() {
     if (resultado.includes("Success")) {
        actual.btn.innerText = "✅";
        actual.btn.classList.add("btn-check");
+       // Si fue exitoso, el selector se queda bloqueado.
     } else {
        alert("Error al guardar: " + actual.usuario);
+       // Si falla, desbloqueamos para que el usuario pueda volver a intentar
        actual.btn.disabled = false;
        actual.btn.innerText = "OK";
+       actual.select.disabled = false;
+       actual.select.style.opacity = "1";
     }
   } catch (e) {
+    console.error("Error de conexión:", e);
+    // Si hay error de red, también desbloqueamos
     actual.btn.disabled = false;
     actual.btn.innerText = "OK";
+    actual.select.disabled = false;
+    actual.select.style.opacity = "1";
   }
 
   colaPeticiones.shift();
@@ -166,7 +182,8 @@ async function procesarColaPeticiones() {
   if (colaPeticiones.length > 0) {
     procesarColaPeticiones();
   } else {
-    fetchData();
+    // Retraso de medio segundo antes de refrescar para evitar parpadeos visuales
+    setTimeout(fetchData, 500);
   }
 }
 
