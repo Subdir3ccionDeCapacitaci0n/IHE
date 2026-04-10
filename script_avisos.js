@@ -16,43 +16,51 @@ const AUDIOS_TRAMITES = {
 };
 
 // 3. VARIABLES DE CONTROL Y SONIDO
-let idsProcesados = new Set(); // Memoria para no repetir sonidos
+let idsProcesados = new Set();
 let colaPeticiones = [];
 let enviandoDatos = false;
+let isFetching = false; // NUEVO: Escudo para saber si estamos descargando datos
 
 // Reloj visual
 setInterval(() => {
   document.getElementById('reloj').innerText = new Date().toLocaleTimeString();
 }, 1000);
 
-// Motor de recarga (ajustado a 4 segundos para actualizar más rápido sin saturar)
+// Motor de recarga (4 segundos)
 setInterval(() => {
-  if (!enviandoDatos && colaPeticiones.length === 0) {
+  // Solo arranca si NO estamos enviando ni descargando
+  if (!enviandoDatos && colaPeticiones.length === 0 && !isFetching) {
     fetchData();
   }
 }, 4000);
 
 async function fetchData() {
+  // ESCUDO 1: Si hay clics pendientes, ni siquiera lo intentes
+  if (enviandoDatos || colaPeticiones.length > 0) return;
+  
+  isFetching = true;
   try {
+    // Agregamos Date.now() a la URL para obligar al navegador a no usar memoria caché
     const res = await fetch(URL_SCRIPT + "?t=" + Date.now());
     const data = await res.json();
     const estadoActualJSON = JSON.stringify(data);
 
+    // ESCUDO 2: ¿El usuario hizo clic MIENTRAS descargábamos la info?
+    if (enviandoDatos || colaPeticiones.length > 0) {
+      isFetching = false;
+      return; // Abortamos para no borrarle la pantalla en su cara
+    }
+
     if (data && data.length > 0) {
       if (estadoActualJSON !== ultimoEstadoJSON) {
         
-        // --- LÓGICA DE SONIDO INFALIBLE ---
+        // Lógica de sonido
         data.forEach(reg => {
-          // Si es un ID que nunca habíamos visto...
           if (!idsProcesados.has(reg.id)) {
-            
-            // Solo suena si NO es la primera vez que cargamos la página (evita gritos al abrir)
             if (ultimoEstadoJSON !== "") {
               console.log("🔔 Nuevo registro detectado:", reg.nombre);
               reproducirAudioTramite(reg.tramite);
             }
-            
-            // Lo guardamos en la memoria para que no vuelva a sonar
             idsProcesados.add(reg.id);
           }
         });
@@ -63,7 +71,7 @@ async function fetchData() {
     } else {
       document.getElementById('listaAvisos').innerHTML = "<p style='text-align:center; opacity:0.5; margin-top:20px;'>No hay registros el día de hoy.</p>";
       ultimoEstadoJSON = ""; 
-      idsProcesados.clear(); // Limpiamos memoria si el Excel queda vacío
+      idsProcesados.clear();
     }
     
     document.getElementById('status').innerText = "Sincronizado: " + new Date().toLocaleTimeString();
@@ -72,10 +80,10 @@ async function fetchData() {
     console.error("Error de conexión:", e);
     document.getElementById('status').innerText = "Buscando servidor...";
   }
+  isFetching = false;
 }
 
 function reproducirAudioTramite(nombreTramite) {
-  // Buscamos el audio (Convertimos a Mayúsculas para que coincida con el objeto AUDIOS_TRAMITES)
   const clave = nombreTramite.toUpperCase();
   const audioUrl = AUDIOS_TRAMITES[clave] || AUDIOS_TRAMITES["DEFAULT"];
   
@@ -83,7 +91,7 @@ function reproducirAudioTramite(nombreTramite) {
   if (reproductor) {
     reproductor.src = audioUrl;
     reproductor.play().catch(e => {
-      console.warn("🔊 El navegador bloqueó el audio. Haz un clic en la pantalla para habilitarlo.");
+      console.warn("🔊 El navegador bloqueó el audio. Haz un clic en la pantalla.");
     });
   }
 }
@@ -132,15 +140,14 @@ function marcarAtendido(tramite, usuario, index, btn) {
 
   const botonVisual = btn || event.target;
 
-  // BLOQUEO INMEDIATO DE AMBOS CONTROLES
   botonVisual.disabled = true;
   botonVisual.innerText = "⏳";
-  selectElement.disabled = true; // Bloquea la lista desplegable
+  selectElement.disabled = true; 
   selectElement.style.opacity = "0.5";
 
-  // Metemos también el select a la cola para poder desbloquearlo si hay un error
   colaPeticiones.push({ tramite, usuario, empleado, btn: botonVisual, select: selectElement });
   
+  // Arranca el motor
   procesarColaPeticiones();
 }
 
@@ -151,40 +158,42 @@ async function procesarColaPeticiones() {
   const actual = colaPeticiones[0]; 
 
   try {
-    const url = `${URL_SCRIPT}?tramite=${encodeURIComponent(actual.tramite)}&usuario=${encodeURIComponent(actual.usuario)}&empleado=${encodeURIComponent(actual.empleado)}`;
+    // NUEVO: Agregamos &ts=Date.now() al final para obligar al navegador a no guardar cache de la peticion
+    const url = `${URL_SCRIPT}?tramite=${encodeURIComponent(actual.tramite)}&usuario=${encodeURIComponent(actual.usuario)}&empleado=${encodeURIComponent(actual.empleado)}&ts=${Date.now()}`;
     const response = await fetch(url, { method: 'GET' });
     const resultado = await response.text();
     
     if (resultado.includes("Success")) {
        actual.btn.innerText = "✅";
        actual.btn.classList.add("btn-check");
-       // Si fue exitoso, el selector se queda bloqueado.
     } else {
-       alert("Error al guardar: " + actual.usuario);
-       // Si falla, desbloqueamos para que el usuario pueda volver a intentar
+       console.error("Error desde Apps Script:", resultado);
        actual.btn.disabled = false;
        actual.btn.innerText = "OK";
        actual.select.disabled = false;
        actual.select.style.opacity = "1";
     }
   } catch (e) {
-    console.error("Error de conexión:", e);
-    // Si hay error de red, también desbloqueamos
+    console.error("Fallo de red:", e);
     actual.btn.disabled = false;
     actual.btn.innerText = "OK";
     actual.select.disabled = false;
     actual.select.style.opacity = "1";
   }
 
+  // Quitamos el que acabamos de enviar
   colaPeticiones.shift();
-  enviandoDatos = false;
 
-  if (colaPeticiones.length > 0) {
-    procesarColaPeticiones();
-  } else {
-    // Retraso de medio segundo antes de refrescar para evitar parpadeos visuales
-    setTimeout(fetchData, 500);
-  }
+  // EL RESPIRO: Esperamos 1 segundo exacto antes de mandar el siguiente click o de actualizar la pantalla
+  setTimeout(() => {
+    enviandoDatos = false;
+    if (colaPeticiones.length > 0) {
+      procesarColaPeticiones(); // Va por el siguiente en la fila
+    } else {
+      fetchData(); // Ya acabamos, forzamos actualización de pantalla
+    }
+  }, 1000); // 1000 milisegundos = 1 segundo de pausa
 }
 
+// Carga inicial
 fetchData();
