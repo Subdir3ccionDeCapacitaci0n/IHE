@@ -54,7 +54,7 @@ function crearCard(reg, esPendiente) {
     btn.textContent = "Firmar";
     btn.onclick = () => {
       let hora = "";
-      if (reg.tipo === "PASE") {
+      if (reg.tipo === "PASE" || reg.tipo === "DESAYUNO") {
         hora = prompt("Confirma hora de regreso real (HH:mm):", new Date().toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit', hour12:false}));
         if (!hora) return;
       }
@@ -63,8 +63,10 @@ function crearCard(reg, esPendiente) {
     div.appendChild(btn);
   } else {
     div.innerHTML += "<b style='color:green'>✔ Ya firmado</b>";
-    // Solo generar formato si NO es JUSTIFICANTE
-    if (reg.tipo !== "JUSTIFICANTE" && reg.tipo !== "DESAYUNO") {
+    
+    // --- LÓGICA ACTUALIZADA AQUÍ ---
+    // Solo generar formato si es estrictamente un PASE
+    if (reg.tipo === "PASE") {
       const btnPDF = document.createElement("button");
       btnPDF.textContent = "Generar Formato";
       btnPDF.className = "formato-btn";
