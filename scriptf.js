@@ -54,7 +54,7 @@ function crearCard(reg, esPendiente) {
     btn.textContent = "Firmar";
     btn.onclick = () => {
       let hora = "";
-      if (reg.tipo === "PASE" || reg.tipo === "DESAYUNO") {
+      if (reg.tipo === "PASE") {
         hora = prompt("Confirma hora de regreso real (HH:mm):", new Date().toLocaleTimeString('es-MX', {hour:'2-digit', minute:'2-digit', hour12:false}));
         if (!hora) return;
       }
