@@ -1,10 +1,8 @@
 const URL_SCRIPT = "https://script.google.com/macros/s/AKfycby-TahiSn8f0s-Ugi4NYy03HJWCkseAnpxtrTnCRrdIkm3GObCjNCggfXWm4oxuUHIO/exec";
 let ultimoEstadoJSON = ""; 
 
-// NOMBRES DEL PERSONAL
 const listaPersonal = ["Alejandra Alamilla", "Ana Franco", "Anabel Samperio", "Eduardo Estrada", "Erendira Sosa", "Guadalupe Sanchez", "Jennyfer Partida", "Leslye Olguin", "Maria Cabrera", "Maribel Moreno", "Miguel Vidal", "Olga Alvarado", "Ramón Gutierrez", "Tania Lopez", "Uriel Estrada", "Yadira Baños"];
 
-// AUDIOS POR TRÁMITE
 const AUDIOS_TRAMITES = {
   "BECA_COMISION": "becaco.mp3",
   "SERVICIO_SOCIAL": "serviso.mp3",
@@ -15,23 +13,21 @@ const AUDIOS_TRAMITES = {
   "DEFAULT": "https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"
 };
 
-// VARIABLES DE CONTROL
 let idsProcesados = new Set(); 
 let colaPeticiones = [];
 let enviandoDatos = false;
 let isFetching = false; 
 
-// Reloj
 setInterval(() => {
   document.getElementById('reloj').innerText = new Date().toLocaleTimeString();
 }, 1000);
 
-// Motor de recarga (4 segundos)
+// VELOCIDAD AL MÁXIMO: Recarga cada 3 segundos
 setInterval(() => {
   if (!enviandoDatos && colaPeticiones.length === 0 && !isFetching) {
     fetchData();
   }
-}, 4000);
+}, 3000);
 
 async function fetchData() {
   if (enviandoDatos || colaPeticiones.length > 0) return;
@@ -49,17 +45,12 @@ async function fetchData() {
 
     if (data && data.length > 0) {
       if (estadoActualJSON !== ultimoEstadoJSON) {
-        
-        // Sonidos
         data.forEach(reg => {
           if (!idsProcesados.has(reg.id)) {
-            if (ultimoEstadoJSON !== "") {
-              reproducirAudioTramite(reg.tramite);
-            }
+            if (ultimoEstadoJSON !== "") reproducirAudioTramite(reg.tramite);
             idsProcesados.add(reg.id);
           }
         });
-
         renderizar(data);
         ultimoEstadoJSON = estadoActualJSON;
       }
@@ -68,11 +59,8 @@ async function fetchData() {
       ultimoEstadoJSON = ""; 
       idsProcesados.clear();
     }
-    
     document.getElementById('status').innerText = "Sincronizado: " + new Date().toLocaleTimeString();
-    
   } catch (e) {
-    console.error("Error de conexión:", e);
     document.getElementById('status').innerText = "Buscando servidor...";
   }
   isFetching = false;
@@ -81,13 +69,10 @@ async function fetchData() {
 function reproducirAudioTramite(nombreTramite) {
   const clave = nombreTramite.toUpperCase();
   const audioUrl = AUDIOS_TRAMITES[clave] || AUDIOS_TRAMITES["DEFAULT"];
-  
   const reproductor = document.getElementById('audioNotificacion');
   if (reproductor) {
     reproductor.src = audioUrl;
-    reproductor.play().catch(e => {
-      console.warn("Navegador bloqueó el audio. Requiere un clic en la página.");
-    });
+    reproductor.play().catch(e => console.warn("Haz clic en la página para habilitar el sonido."));
   }
 }
 
@@ -101,7 +86,6 @@ function renderizar(data) {
     
     const yaAtendido = reg.atendio && reg.atendio.trim() !== "";
     li.className = `item-aviso ${yaAtendido ? 'finalizado' : ''}`;
-    
     const nombreLimpio = reg.tramite.replace(/_/g, ' ');
     const opciones = listaPersonal.map(p => `<option value="${p}">${p}</option>`).join('');
 
@@ -110,12 +94,10 @@ function renderizar(data) {
       <span class="usuario-nombre">${reg.nombre}</span>
       <div class="atencion-controles">
         <select id="sel-${index}" ${yaAtendido ? 'disabled' : ''} style="${yaAtendido ? 'opacity:0.8; border-color:#27ae60' : ''}">
-          ${yaAtendido 
-            ? `<option>${reg.atendio}</option>` 
-            : `<option value="">Atendió...</option>${opciones}`}
+          ${yaAtendido ? `<option>${reg.atendio}</option>` : `<option value="">Atendió...</option>${opciones}`}
         </select>
         <button 
-          onclick="marcarAtendido('${reg.tramite}', '${reg.nombre}', '${reg.id}', ${index}, this)" 
+          onclick="marcarAtendido('${reg.tramite}', '${reg.nombre}', ${reg.filaReal}, ${index}, this, this.parentElement.parentElement)" 
           ${yaAtendido ? 'disabled class="btn-check"' : ''} 
           style="${yaAtendido ? 'background-color:#27ae60 !important; cursor:default' : ''}">
           ${yaAtendido ? '✔' : 'OK'}
@@ -127,62 +109,62 @@ function renderizar(data) {
   });
 }
 
-function marcarAtendido(tramite, usuario, idUnico, index, btn) {
+function marcarAtendido(tramite, usuario, filaReal, index, btn, liElement) {
   const selectElement = document.getElementById(`sel-${index}`);
   const empleado = selectElement.value;
   
   if (!empleado) return alert("Por favor, selecciona quién atendió.");
 
-  const botonVisual = btn || event.target;
-  botonVisual.disabled = true;
-  botonVisual.innerText = "⏳";
+  // INTERFAZ OPTIMISTA: Lo ponemos verde inmediatamente para que se sienta rápido
+  btn.disabled = true;
+  btn.innerText = "✅";
+  btn.classList.add("btn-check");
   selectElement.disabled = true; 
-  selectElement.style.opacity = "0.5";
+  selectElement.style.opacity = "0.8";
+  selectElement.style.borderColor = "#27ae60";
+  liElement.classList.add("finalizado");
 
-  colaPeticiones.push({ tramite, usuario, empleado, id: idUnico, btn: botonVisual, select: selectElement });
-  
+  // Lo mandamos al servidor en silencio
+  colaPeticiones.push({ tramite, usuario, empleado, filaReal, btn, select: selectElement, li: liElement });
   procesarColaPeticiones();
 }
 
 async function procesarColaPeticiones() {
   if (enviandoDatos || colaPeticiones.length === 0) return;
-  
   enviandoDatos = true;
   const actual = colaPeticiones[0]; 
 
   try {
-    const url = `${URL_SCRIPT}?tramite=${encodeURIComponent(actual.tramite)}&empleado=${encodeURIComponent(actual.empleado)}&id=${encodeURIComponent(actual.id)}&ts=${Date.now()}`;
+    // Mandamos la fila exacta para que el servidor no tenga que buscar
+    const url = `${URL_SCRIPT}?tramite=${encodeURIComponent(actual.tramite)}&empleado=${encodeURIComponent(actual.empleado)}&filaReal=${actual.filaReal}&ts=${Date.now()}`;
     const response = await fetch(url, { method: 'GET' });
     const resultado = await response.text();
     
-    if (resultado.includes("Success")) {
-       actual.btn.innerText = "✅";
-       actual.btn.classList.add("btn-check");
-    } else {
+    if (!resultado.includes("Success")) {
        console.error("Error servidor:", resultado);
-       actual.btn.disabled = false;
-       actual.btn.innerText = "OK";
-       actual.select.disabled = false;
-       actual.select.style.opacity = "1";
+       revertirInterfaz(actual); // Si falla, lo regresamos a "OK"
     }
   } catch (e) {
-    actual.btn.disabled = false;
-    actual.btn.innerText = "OK";
-    actual.select.disabled = false;
-    actual.select.style.opacity = "1";
+    revertirInterfaz(actual);
   }
 
   colaPeticiones.shift();
-
-  // El respiro de 1 segundo
   setTimeout(() => {
     enviandoDatos = false;
-    if (colaPeticiones.length > 0) {
-      procesarColaPeticiones();
-    } else {
-      fetchData();
-    }
-  }, 1000); 
+    if (colaPeticiones.length > 0) procesarColaPeticiones();
+    else fetchData();
+  }, 500); // Respiro de solo medio segundo para que sea más agresivo
+}
+
+function revertirInterfaz(actual) {
+  alert("Error de red, no se guardó: " + actual.usuario);
+  actual.btn.disabled = false;
+  actual.btn.innerText = "OK";
+  actual.btn.classList.remove("btn-check");
+  actual.select.disabled = false;
+  actual.select.style.opacity = "1";
+  actual.select.style.borderColor = "var(--dorado)";
+  actual.li.classList.remove("finalizado");
 }
 
 fetchData();
