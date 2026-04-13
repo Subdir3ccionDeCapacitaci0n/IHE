@@ -16,23 +16,30 @@ const AUDIOS_TRAMITES = {
 let idsProcesados = new Set(); 
 let colaPeticiones = [];
 let enviandoDatos = false;
+let isFetching = false; 
+let timerRecarga; // Cronómetro inteligente
 
+// Reloj visual
 setInterval(() => {
   document.getElementById('reloj').innerText = new Date().toLocaleTimeString();
 }, 1000);
 
-// MÉTODO ORIGINAL: 10 Segundos fijos para balancear velocidad y evitar bloqueos de Google
-setInterval(() => {
-  if (!enviandoDatos && colaPeticiones.length === 0) {
-    fetchData();
-  }
-}, 10000);
-
 async function fetchData() {
+  if (enviandoDatos || colaPeticiones.length > 0) return;
+  
+  isFetching = true;
+  clearTimeout(timerRecarga); 
+  
   try {
     const res = await fetch(URL_SCRIPT + "?t=" + Date.now());
     const data = await res.json();
     const estadoActualJSON = JSON.stringify(data);
+
+    if (enviandoDatos || colaPeticiones.length > 0) {
+      isFetching = false;
+      timerRecarga = setTimeout(fetchData, 5000);
+      return; 
+    }
 
     if (data && data.length > 0) {
       if (estadoActualJSON !== ultimoEstadoJSON) {
@@ -54,6 +61,11 @@ async function fetchData() {
   } catch (e) {
     document.getElementById('status').innerText = "Buscando servidor...";
   }
+  
+  isFetching = false;
+  
+  // EL LÍMITE DE VELOCIDAD: 5 segundos exactos
+  timerRecarga = setTimeout(fetchData, 5000); 
 }
 
 function reproducirAudioTramite(nombreTramite) {
@@ -62,7 +74,7 @@ function reproducirAudioTramite(nombreTramite) {
   const reproductor = document.getElementById('audioNotificacion');
   if (reproductor) {
     reproductor.src = audioUrl;
-    reproductor.play().catch(e => console.warn("Haz clic para habilitar sonido."));
+    reproductor.play().catch(e => console.warn("Haz clic en la página para habilitar el sonido."));
   }
 }
 
@@ -127,15 +139,24 @@ async function procesarColaPeticiones() {
     const response = await fetch(url, { method: 'GET' });
     const resultado = await response.text();
     
-    if (!resultado.includes("Success")) revertirInterfaz(actual); 
+    if (!resultado.includes("Success")) {
+       console.error("Error servidor:", resultado);
+       revertirInterfaz(actual); 
+    }
   } catch (e) {
     revertirInterfaz(actual);
   }
 
   colaPeticiones.shift();
-  enviandoDatos = false;
-  if (colaPeticiones.length > 0) procesarColaPeticiones();
-  else fetchData();
+  setTimeout(() => {
+    enviandoDatos = false;
+    if (colaPeticiones.length > 0) {
+      procesarColaPeticiones();
+    } else {
+      clearTimeout(timerRecarga);
+      fetchData();
+    }
+  }, 500); 
 }
 
 function revertirInterfaz(actual) {
@@ -149,9 +170,26 @@ function revertirInterfaz(actual) {
   actual.li.classList.remove("finalizado");
 }
 
-// Rescate rápido si cambian de pestaña
+// 1. Si cambian de pestaña y regresan
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && !enviandoDatos) fetchData();
+  if (document.visibilityState === "visible" && !enviandoDatos) {
+    clearTimeout(timerRecarga);
+    fetchData();
+  }
 });
+
+// 2. Si mueven el mouse después de 10 segundos inactivos
+let tiempoInactivo = 0;
+document.addEventListener("mousemove", () => {
+  if (tiempoInactivo > 10 && !enviandoDatos) {
+    clearTimeout(timerRecarga);
+    fetchData();
+  }
+  tiempoInactivo = 0; 
+});
+
+setInterval(() => {
+  tiempoInactivo++;
+}, 1000);
 
 fetchData();
