@@ -16,32 +16,23 @@ const AUDIOS_TRAMITES = {
 let idsProcesados = new Set(); 
 let colaPeticiones = [];
 let enviandoDatos = false;
-let isFetching = false; 
-let timerRecarga; // Cronómetro inteligente
 
-// Reloj visual
 setInterval(() => {
   document.getElementById('reloj').innerText = new Date().toLocaleTimeString();
 }, 1000);
 
+// REGRESAMOS AL MÉTODO ORIGINAL RÁPIDO: 4 Segundos fijos
+setInterval(() => {
+  if (!enviandoDatos && colaPeticiones.length === 0) {
+    fetchData();
+  }
+}, 4000);
+
 async function fetchData() {
-  // Si estamos guardando algo o hay cola, abortamos para no estorbar
-  if (enviandoDatos || colaPeticiones.length > 0) return;
-  
-  isFetching = true;
-  clearTimeout(timerRecarga); // Detenemos cualquier cronómetro anterior
-  
   try {
     const res = await fetch(URL_SCRIPT + "?t=" + Date.now());
     const data = await res.json();
     const estadoActualJSON = JSON.stringify(data);
-
-    // ¿Hicieron clic mientras descargábamos? Abortar y reiniciar reloj
-    if (enviandoDatos || colaPeticiones.length > 0) {
-      isFetching = false;
-      timerRecarga = setTimeout(fetchData, 7000);
-      return; 
-    }
 
     if (data && data.length > 0) {
       if (estadoActualJSON !== ultimoEstadoJSON) {
@@ -63,11 +54,6 @@ async function fetchData() {
   } catch (e) {
     document.getElementById('status').innerText = "Buscando servidor...";
   }
-  
-  isFetching = false;
-  
-  // LA MAGIA: Espera 7 segundos exactos después de terminar de cargar, para que no se acumule el lag.
-  timerRecarga = setTimeout(fetchData, 7000); 
 }
 
 function reproducirAudioTramite(nombreTramite) {
@@ -76,7 +62,7 @@ function reproducirAudioTramite(nombreTramite) {
   const reproductor = document.getElementById('audioNotificacion');
   if (reproductor) {
     reproductor.src = audioUrl;
-    reproductor.play().catch(e => console.warn("Haz clic en la página para habilitar el sonido."));
+    reproductor.play().catch(e => console.warn("Haz clic para habilitar sonido."));
   }
 }
 
@@ -119,7 +105,6 @@ function marcarAtendido(tramite, usuario, filaReal, index, btn, liElement) {
   
   if (!empleado) return alert("Por favor, selecciona quién atendió.");
 
-  // INTERFAZ OPTIMISTA
   btn.disabled = true;
   btn.innerText = "✅";
   btn.classList.add("btn-check");
@@ -142,25 +127,15 @@ async function procesarColaPeticiones() {
     const response = await fetch(url, { method: 'GET' });
     const resultado = await response.text();
     
-    if (!resultado.includes("Success")) {
-       console.error("Error servidor:", resultado);
-       revertirInterfaz(actual); 
-    }
+    if (!resultado.includes("Success")) revertirInterfaz(actual); 
   } catch (e) {
     revertirInterfaz(actual);
   }
 
   colaPeticiones.shift();
-  setTimeout(() => {
-    enviandoDatos = false;
-    if (colaPeticiones.length > 0) {
-      procesarColaPeticiones();
-    } else {
-      // Cuando termina de guardar, forzamos la actualización
-      clearTimeout(timerRecarga);
-      fetchData();
-    }
-  }, 500); 
+  enviandoDatos = false;
+  if (colaPeticiones.length > 0) procesarColaPeticiones();
+  else fetchData();
 }
 
 function revertirInterfaz(actual) {
@@ -174,34 +149,9 @@ function revertirInterfaz(actual) {
   actual.li.classList.remove("finalizado");
 }
 
-// ==========================================
-// EL "INSTINTO DE DESPERTAR" (Anti-Lag)
-// ==========================================
-
-// 1. Si cambian de pestaña y regresan
+// Rescate rápido si cambian de pestaña
 document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible" && !enviandoDatos) {
-    console.log("⚡ Pestaña activa: Forzando actualización...");
-    clearTimeout(timerRecarga);
-    fetchData();
-  }
+  if (document.visibilityState === "visible" && !enviandoDatos) fetchData();
 });
 
-// 2. Si mueven el mouse después de 10 segundos inactivos
-let tiempoInactivo = 0;
-document.addEventListener("mousemove", () => {
-  if (tiempoInactivo > 10 && !enviandoDatos) {
-    console.log("⚡ Movimiento detectado: Forzando actualización...");
-    clearTimeout(timerRecarga);
-    fetchData();
-  }
-  tiempoInactivo = 0; 
-});
-
-// Contador invisible
-setInterval(() => {
-  tiempoInactivo++;
-}, 1000);
-
-// PRIMERA CARGA AL ABRIR LA PÁGINA
-fetchData();chData();
+fetchData();
