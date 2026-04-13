@@ -22,12 +22,12 @@ setInterval(() => {
   document.getElementById('reloj').innerText = new Date().toLocaleTimeString();
 }, 1000);
 
-// VELOCIDAD AL MÁXIMO: Recarga cada 3 segundos
+// PUNTO DULCE: Recarga cada 7 segundos para evitar bloqueos de Google
 setInterval(() => {
   if (!enviandoDatos && colaPeticiones.length === 0 && !isFetching) {
     fetchData();
   }
-}, 3000);
+}, 7000);
 
 async function fetchData() {
   if (enviandoDatos || colaPeticiones.length > 0) return;
@@ -166,5 +166,33 @@ function revertirInterfaz(actual) {
   actual.select.style.borderColor = "var(--dorado)";
   actual.li.classList.remove("finalizado");
 }
+
+// ==========================================
+// EL "INSTINTO DE DESPERTAR" (Anti-Lag)
+// ==========================================
+
+// 1. Si el usuario cambia de pestaña y regresa, actualiza al instante
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && !enviandoDatos) {
+    console.log("⚡ Pestaña activa: Forzando actualización...");
+    fetchData();
+  }
+});
+
+// 2. Si la computadora estaba inactiva y mueven el mouse, actualiza al instante
+let tiempoInactivo = 0;
+document.addEventListener("mousemove", () => {
+  // Solo forzamos si pasaron más de 10 segundos sin mover el mouse
+  if (tiempoInactivo > 10 && !enviandoDatos) {
+    console.log("⚡ Movimiento detectado: Forzando actualización...");
+    fetchData();
+  }
+  tiempoInactivo = 0; // Reinicia el contador
+});
+
+// Contador invisible de inactividad
+setInterval(() => {
+  tiempoInactivo++;
+}, 1000);
 
 fetchData();
