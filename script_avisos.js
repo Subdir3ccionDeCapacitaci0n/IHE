@@ -17,29 +17,29 @@ let idsProcesados = new Set();
 let colaPeticiones = [];
 let enviandoDatos = false;
 let isFetching = false; 
+let timerRecarga; // Cronómetro inteligente
 
+// Reloj visual
 setInterval(() => {
   document.getElementById('reloj').innerText = new Date().toLocaleTimeString();
 }, 1000);
 
-// PUNTO DULCE: Recarga cada 7 segundos para evitar bloqueos de Google
-setInterval(() => {
-  if (!enviandoDatos && colaPeticiones.length === 0 && !isFetching) {
-    fetchData();
-  }
-}, 7000);
-
 async function fetchData() {
+  // Si estamos guardando algo o hay cola, abortamos para no estorbar
   if (enviandoDatos || colaPeticiones.length > 0) return;
   
   isFetching = true;
+  clearTimeout(timerRecarga); // Detenemos cualquier cronómetro anterior
+  
   try {
     const res = await fetch(URL_SCRIPT + "?t=" + Date.now());
     const data = await res.json();
     const estadoActualJSON = JSON.stringify(data);
 
+    // ¿Hicieron clic mientras descargábamos? Abortar y reiniciar reloj
     if (enviandoDatos || colaPeticiones.length > 0) {
       isFetching = false;
+      timerRecarga = setTimeout(fetchData, 7000);
       return; 
     }
 
@@ -63,7 +63,11 @@ async function fetchData() {
   } catch (e) {
     document.getElementById('status').innerText = "Buscando servidor...";
   }
+  
   isFetching = false;
+  
+  // LA MAGIA: Espera 7 segundos exactos después de terminar de cargar, para que no se acumule el lag.
+  timerRecarga = setTimeout(fetchData, 7000); 
 }
 
 function reproducirAudioTramite(nombreTramite) {
@@ -115,7 +119,7 @@ function marcarAtendido(tramite, usuario, filaReal, index, btn, liElement) {
   
   if (!empleado) return alert("Por favor, selecciona quién atendió.");
 
-  // INTERFAZ OPTIMISTA: Lo ponemos verde inmediatamente para que se sienta rápido
+  // INTERFAZ OPTIMISTA
   btn.disabled = true;
   btn.innerText = "✅";
   btn.classList.add("btn-check");
@@ -124,7 +128,6 @@ function marcarAtendido(tramite, usuario, filaReal, index, btn, liElement) {
   selectElement.style.borderColor = "#27ae60";
   liElement.classList.add("finalizado");
 
-  // Lo mandamos al servidor en silencio
   colaPeticiones.push({ tramite, usuario, empleado, filaReal, btn, select: selectElement, li: liElement });
   procesarColaPeticiones();
 }
@@ -135,14 +138,13 @@ async function procesarColaPeticiones() {
   const actual = colaPeticiones[0]; 
 
   try {
-    // Mandamos la fila exacta para que el servidor no tenga que buscar
     const url = `${URL_SCRIPT}?tramite=${encodeURIComponent(actual.tramite)}&empleado=${encodeURIComponent(actual.empleado)}&filaReal=${actual.filaReal}&ts=${Date.now()}`;
     const response = await fetch(url, { method: 'GET' });
     const resultado = await response.text();
     
     if (!resultado.includes("Success")) {
        console.error("Error servidor:", resultado);
-       revertirInterfaz(actual); // Si falla, lo regresamos a "OK"
+       revertirInterfaz(actual); 
     }
   } catch (e) {
     revertirInterfaz(actual);
@@ -151,9 +153,14 @@ async function procesarColaPeticiones() {
   colaPeticiones.shift();
   setTimeout(() => {
     enviandoDatos = false;
-    if (colaPeticiones.length > 0) procesarColaPeticiones();
-    else fetchData();
-  }, 500); // Respiro de solo medio segundo para que sea más agresivo
+    if (colaPeticiones.length > 0) {
+      procesarColaPeticiones();
+    } else {
+      // Cuando termina de guardar, forzamos la actualización
+      clearTimeout(timerRecarga);
+      fetchData();
+    }
+  }, 500); 
 }
 
 function revertirInterfaz(actual) {
@@ -171,28 +178,30 @@ function revertirInterfaz(actual) {
 // EL "INSTINTO DE DESPERTAR" (Anti-Lag)
 // ==========================================
 
-// 1. Si el usuario cambia de pestaña y regresa, actualiza al instante
+// 1. Si cambian de pestaña y regresan
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible" && !enviandoDatos) {
     console.log("⚡ Pestaña activa: Forzando actualización...");
+    clearTimeout(timerRecarga);
     fetchData();
   }
 });
 
-// 2. Si la computadora estaba inactiva y mueven el mouse, actualiza al instante
+// 2. Si mueven el mouse después de 10 segundos inactivos
 let tiempoInactivo = 0;
 document.addEventListener("mousemove", () => {
-  // Solo forzamos si pasaron más de 10 segundos sin mover el mouse
   if (tiempoInactivo > 10 && !enviandoDatos) {
     console.log("⚡ Movimiento detectado: Forzando actualización...");
+    clearTimeout(timerRecarga);
     fetchData();
   }
-  tiempoInactivo = 0; // Reinicia el contador
+  tiempoInactivo = 0; 
 });
 
-// Contador invisible de inactividad
+// Contador invisible
 setInterval(() => {
   tiempoInactivo++;
 }, 1000);
 
-fetchData();
+// PRIMERA CARGA AL ABRIR LA PÁGINA
+fetchData();chData();
