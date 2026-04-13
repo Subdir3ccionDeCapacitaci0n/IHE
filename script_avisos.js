@@ -21,12 +21,12 @@ setInterval(() => {
   document.getElementById('reloj').innerText = new Date().toLocaleTimeString();
 }, 1000);
 
-// REGRESAMOS AL MÉTODO ORIGINAL RÁPIDO: 4 Segundos fijos
+// MÉTODO ORIGINAL: 10 Segundos fijos para balancear velocidad y evitar bloqueos de Google
 setInterval(() => {
   if (!enviandoDatos && colaPeticiones.length === 0) {
     fetchData();
   }
-}, 4000);
+}, 10000);
 
 async function fetchData() {
   try {
