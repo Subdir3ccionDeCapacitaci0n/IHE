@@ -61,7 +61,8 @@ formulario.addEventListener("submit", function (e) {
     nombre: document.getElementById("nombre").value,
     apellidos: document.getElementById("apellidos").value,
     telefono: document.getElementById("telefono").value,
-    correo: document.getElementById("correo").value
+    correo: document.getElementById("correo").value,
+    genero: document.getElementById("genero").value // NUEVO CAMPO CAPTURADO
   };
 
   // Enviar nivel escolar solo si aplica
@@ -80,7 +81,8 @@ formulario.addEventListener("submit", function (e) {
   })
     .then(res => res.json())
     .then(res => {
-      if (res.status === "ok") {
+      // AJUSTE: El backend devuelve "nuevo" o "actualizado", no "ok"
+      if (res.status === "nuevo" || res.status === "actualizado" || res.status === "ok") {
 
         // MENSAJE GLOBAL DE ÉXITO
         mensajeGlobal.innerText = "Los datos se enviaron correctamente.";
@@ -109,6 +111,6 @@ formulario.addEventListener("submit", function (e) {
       // REACTIVAR BOTÓN SIEMPRE
       enviando = false;
       boton.disabled = false;
-      boton.innerText = "Enviar trámite";
+      boton.innerText = "Enviar Registro"; // Ajustado para coincidir con el HTML
     });
 });
