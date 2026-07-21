@@ -61,8 +61,7 @@ formulario.addEventListener("submit", function (e) {
     nombre: document.getElementById("nombre").value,
     apellidos: document.getElementById("apellidos").value,
     telefono: document.getElementById("telefono").value,
-    correo: document.getElementById("correo").value,
-    genero: document.getElementById("genero").value // NUEVO CAMPO CAPTURADO
+    correo: document.getElementById("correo").value
   };
 
   // Enviar nivel escolar solo si aplica
@@ -75,14 +74,13 @@ formulario.addEventListener("submit", function (e) {
     data.direccion = document.getElementById("direccion").value;
   }
 
-  fetch("https://script.google.com/macros/s/AKfycby-TahiSn8f0s-Ugi4NYy03HJWCkseAnpxtrTnCRrdIkm3GObCjNCggfXWm4oxuUHIO/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbzdqlEJ8_e10STjrES60SdM6x_VK1HF3CShLPj06vCvjj-AYkccutLVsf0xL93ZcyUx/exec", {
     method: "POST",
     body: JSON.stringify(data)
   })
     .then(res => res.json())
     .then(res => {
-      // AJUSTE: El backend devuelve "nuevo" o "actualizado", no "ok"
-      if (res.status === "nuevo" || res.status === "actualizado" || res.status === "ok") {
+      if (res.status === "ok") {
 
         // MENSAJE GLOBAL DE ÉXITO
         mensajeGlobal.innerText = "Los datos se enviaron correctamente.";
@@ -111,6 +109,6 @@ formulario.addEventListener("submit", function (e) {
       // REACTIVAR BOTÓN SIEMPRE
       enviando = false;
       boton.disabled = false;
-      boton.innerText = "Enviar Registro"; // Ajustado para coincidir con el HTML
+      boton.innerText = "Enviar trámite";
     });
 });
