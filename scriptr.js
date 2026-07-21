@@ -3,7 +3,7 @@ const mensaje = document.getElementById("mensaje");
 const mensajeGlobal = document.getElementById("mensajeGlobal");
 
 let tramiteSeleccionado = "";
-let enviando = false; // BLOQUEO DE DOBLE ENVÍO
+let enviando = false; 
 
 function seleccionarTramite(valor) {
   tramiteSeleccionado = valor;
@@ -19,7 +19,6 @@ function seleccionarTramite(valor) {
 
   formulario.classList.remove("hidden");
 
-  // Campo nivel escolar (Beca Comisión)
   const nivel = document.getElementById("nivelEscolar");
   if (valor === "Beca_Comision") {
     nivel.classList.remove("hidden");
@@ -30,7 +29,6 @@ function seleccionarTramite(valor) {
     nivel.value = "";
   }
 
-  // Campo dirección (Servidor Público del Mes)
   const direccion = document.getElementById("direccion");
   if (valor === "Servidor_Publico_Mes") {
     direccion.classList.remove("hidden");
@@ -45,7 +43,6 @@ function seleccionarTramite(valor) {
 formulario.addEventListener("submit", function (e) {
   e.preventDefault();
 
-  // EVITAR DOBLE ENVÍO
   if (enviando) return;
   enviando = true;
 
@@ -61,54 +58,60 @@ formulario.addEventListener("submit", function (e) {
     nombre: document.getElementById("nombre").value,
     apellidos: document.getElementById("apellidos").value,
     telefono: document.getElementById("telefono").value,
-    correo: document.getElementById("correo").value
+    correo: document.getElementById("correo").value,
+    genero: document.getElementById("genero").value // <-- GÉNERO AÑADIDO
   };
 
-  // Enviar nivel escolar solo si aplica
   if (tramiteSeleccionado === "Beca_Comision") {
     data.nivel_escolar = document.getElementById("nivelEscolar").value;
   }
 
-  // Enviar dirección solo si aplica
   if (tramiteSeleccionado === "Servidor_Publico_Mes") {
     data.direccion = document.getElementById("direccion").value;
   }
 
   fetch("https://script.google.com/macros/s/AKfycby-TahiSn8f0s-Ugi4NYy03HJWCkseAnpxtrTnCRrdIkm3GObCjNCggfXWm4oxuUHIO/exec", {
     method: "POST",
+    headers: {
+      "Content-Type": "text/plain;charset=utf-8" // <-- ESTO MATA EL ERROR DE CONEXIÓN
+    },
     body: JSON.stringify(data)
   })
-    .then(res => res.json())
+    .then(async (res) => {
+      const text = await res.text();
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        throw new Error("Respuesta no válida del servidor");
+      }
+    })
     .then(res => {
-      if (res.status === "ok") {
-
-        // MENSAJE GLOBAL DE ÉXITO
+      // <-- CORREGIDO: Apps Script manda "nuevo" o "actualizado", no "ok"
+      if (res.status === "nuevo" || res.status === "actualizado" || res.status === "ok") {
         mensajeGlobal.innerText = "Los datos se enviaron correctamente.";
         mensajeGlobal.classList.remove("hidden");
         mensajeGlobal.classList.add("exito");
 
-        // REGRESAR A PANTALLA PRINCIPAL
         formulario.reset();
         formulario.classList.add("hidden");
         document.getElementById("selectorTramite").value = "";
         mensaje.innerText = "";
 
-        // OCULTAR MENSAJE DESPUÉS DE 5 SEGUNDOS
         setTimeout(() => {
           mensajeGlobal.classList.add("hidden");
         }, 5000);
-
       } else {
         mensaje.innerText = "Ocurrió un error al enviar los datos.";
       }
     })
-    .catch(() => {
+    .catch((err) => {
       mensaje.innerText = "Error de conexión.";
+      console.error(err);
     })
     .finally(() => {
-      // REACTIVAR BOTÓN SIEMPRE
+      // <-- ESTO EVITA QUE EL BOTÓN SE QUEDE CONGELADO EN "ENVIANDO..."
       enviando = false;
       boton.disabled = false;
-      boton.innerText = "Enviar trámite";
+      boton.innerText = "Enviar Registro";
     });
 });
