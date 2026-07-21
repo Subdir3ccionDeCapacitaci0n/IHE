@@ -70,7 +70,7 @@ formulario.addEventListener("submit", function (e) {
     data.direccion = document.getElementById("direccion").value;
   }
 
-  fetch("https://script.google.com/macros/s/AKfycby-TahiSn8f0s-Ugi4NYy03HJWCkseAnpxtrTnCRrdIkm3GObCjNCggfXWm4oxuUHIO/exec", {
+  fetch("https://script.google.com/macros/s/AKfycby5trUHvjbYwNUYSvqm1eEl5hRhBjVF9CUedrDZ0uU_CXq3dYr0PA0UJVd-RzqCP07i/exec", {
     method: "POST",
     headers: {
       "Content-Type": "text/plain;charset=utf-8" // <-- ESTO MATA EL ERROR DE CONEXIÓN
