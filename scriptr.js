@@ -74,7 +74,7 @@ formulario.addEventListener("submit", function (e) {
     data.direccion = document.getElementById("direccion").value;
   }
 
-  fetch("https://script.google.com/macros/s/AKfycbzdqlEJ8_e10STjrES60SdM6x_VK1HF3CShLPj06vCvjj-AYkccutLVsf0xL93ZcyUx/exec", {
+  fetch("https://script.google.com/macros/s/AKfycby-TahiSn8f0s-Ugi4NYy03HJWCkseAnpxtrTnCRrdIkm3GObCjNCggfXWm4oxuUHIO/exec", {
     method: "POST",
     body: JSON.stringify(data)
   })
