@@ -6,7 +6,7 @@
  * Versión sin clave de acceso.
  */
 
-const URL_SCRIPT = "https://script.google.com/macros/s/AKfycby-TahiSn8f0s-Ugi4NYy03HJWCkseAnpxtrTnCRrdIkm3GObCjNCggfXWm4oxuUHIO/exec";
+const URL_SCRIPT = "https://script.google.com/macros/s/AKfycby5trUHvjbYwNUYSvqm1eEl5hRhBjVF9CUedrDZ0uU_CXq3dYr0PA0UJVd-RzqCP07i/exec";
 
 const INTERVALO_BASE_MS = 2000;
 const INTERVALO_MAX_MS = 60000;
