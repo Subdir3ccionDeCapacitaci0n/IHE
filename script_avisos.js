@@ -8,7 +8,7 @@
 
 const URL_SCRIPT = "https://script.google.com/macros/s/AKfycby-TahiSn8f0s-Ugi4NYy03HJWCkseAnpxtrTnCRrdIkm3GObCjNCggfXWm4oxuUHIO/exec";
 
-const INTERVALO_BASE_MS = 5000;
+const INTERVALO_BASE_MS = 2000;
 const INTERVALO_MAX_MS = 60000;
 const TIMEOUT_MS = 15000;
 const REINTENTOS_ESCRITURA = 2;
