@@ -1,113 +1,314 @@
-* {
-    box-sizing: border-box;
-    font-family: Arial, Helvetica, sans-serif;
-  }
-  
-  body {
-    background: #f7f5f2;
-    margin: 0;
-    padding: 0;
-  }
-  
-  /* Header con logo */
-  .header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 20px auto 0 auto;
-  }
-  
+:root {
+  /* Paleta Oficial Gobierno de México (2024–2030) */
+  --gob-guinda-oscuro: #611232;
+  --gob-guinda: #9b2247;
+  --gob-dorado: #a57f2c;
+  --gob-arena: #e6d194;
+  --gob-verde-oscuro: #002f2a;
+  --gob-verde: #1e5b4f;
+  --gob-gris: #98989A;
+  --gob-carbon: #161a1d;
+
+  /* Superficies y estados derivados */
+  --bg-pagina: #f6f4f0;
+  --bg-tarjeta: #ffffff;
+  --bg-input: #fcfcfb;
+  --texto-secundario: #4b4f54;
+  --borde-suave: #d5d2cc;
+  --sombra-tarjeta: 0 12px 32px rgba(22, 26, 29, 0.08);
+  --radio-tarjeta: 12px;
+  --radio-control: 6px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Noto Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-pagina);
+  color: var(--gob-carbon);
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.5;
+}
+
+/* Encabezado institucional */
+.header {
+  background-color: var(--bg-tarjeta);
+  border-top: 6px solid var(--gob-guinda-oscuro);
+  border-bottom: 3px solid var(--gob-dorado);
+  padding: 16px 20px;
+  box-shadow: 0 2px 10px rgba(22, 26, 29, 0.05);
+}
+
+.header-inner {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo {
+  height: 84px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Contenedor principal */
+.container {
+  width: calc(100% - 32px);
+  max-width: 580px;
+  margin: 32px auto 40px auto;
+  background-color: var(--bg-tarjeta);
+  padding: 36px 36px 32px 36px;
+  border-radius: var(--radio-tarjeta);
+  border-top: 5px solid var(--gob-guinda);
+  box-shadow: var(--sombra-tarjeta);
+}
+
+.card-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.badge-institucional {
+  display: inline-block;
+  background-color: rgba(230, 209, 148, 0.38);
+  color: var(--gob-guinda-oscuro);
+  border: 1px solid var(--gob-dorado);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 10px;
+}
+
+h1 {
+  margin: 0 0 6px 0;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--gob-guinda-oscuro);
+  letter-spacing: -0.01em;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--texto-secundario);
+}
+
+/* Encabezado dinámico del trámite seleccionado */
+.form-section-header {
+  margin: 22px 0 18px 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--gob-arena);
+}
+
+h2#tituloTramite {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--gob-guinda);
+}
+
+/* Distribución y etiquetas */
+.selector-box {
+  background-color: rgba(230, 209, 148, 0.16);
+  border: 1px solid rgba(165, 127, 44, 0.45);
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.selector-box.form-group {
+  margin-bottom: 8px;
+}
+
+/* Oculta automáticamente el label cuando scriptr.js aplica .hidden al input/select */
+.form-group:has(.hidden) {
+  display: none;
+}
+
+label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gob-carbon);
+  margin-bottom: 6px;
+}
+
+/* Campos de entrada y selectores */
+input,
+select {
+  width: 100%;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--gob-carbon);
+  background-color: var(--bg-input);
+  padding: 11px 14px;
+  border: 1.5px solid var(--gob-gris);
+  border-radius: var(--radio-control);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+input::placeholder {
+  color: #76787a;
+}
+
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23611232' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 38px;
+  cursor: pointer;
+}
+
+input:hover,
+select:hover {
+  border-color: var(--gob-dorado);
+  background-color: #ffffff;
+}
+
+input:focus-visible,
+select:focus-visible {
+  outline: none;
+  border-color: var(--gob-guinda);
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(230, 209, 148, 0.65);
+}
+
+/* Botón principal */
+form button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 13px 20px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+  background-color: var(--gob-guinda-oscuro);
+  border: none;
+  border-bottom: 3px solid var(--gob-dorado);
+  border-radius: var(--radio-control);
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+form button:hover {
+  background-color: var(--gob-guinda);
+  box-shadow: 0 4px 12px rgba(97, 18, 50, 0.25);
+}
+
+form button:active {
+  transform: translateY(1px);
+}
+
+form button:focus-visible {
+  outline: 3px solid var(--gob-arena);
+  outline-offset: 2px;
+}
+
+form button:disabled {
+  background-color: var(--gob-gris);
+  border-bottom-color: transparent;
+  cursor: not-allowed;
+  opacity: 0.75;
+  box-shadow: none;
+}
+
+/* Utilidades y mensajes de estado */
+.hidden {
+  display: none !important;
+}
+
+.mensaje {
+  text-align: center;
+  font-size: 0.92rem;
+  font-weight: 600;
+  margin-top: 14px;
+  border-radius: var(--radio-control);
+}
+
+.mensaje:not(:empty) {
+  padding: 12px 14px;
+}
+
+#mensajeGlobal {
+  margin-top: 0;
+  margin-bottom: 18px;
+}
+
+/* Mensaje de éxito (Verde institucional) */
+.mensaje.exito {
+  background-color: rgba(30, 91, 79, 0.1);
+  color: var(--gob-verde-oscuro);
+  border: 1px solid rgba(30, 91, 79, 0.35);
+  border-left: 4px solid var(--gob-verde);
+}
+
+/* Mensaje de error (Guinda institucional) */
+.mensaje.error {
+  background-color: rgba(155, 34, 71, 0.08);
+  color: var(--gob-guinda-oscuro);
+  border: 1px solid rgba(155, 34, 71, 0.35);
+  border-left: 4px solid var(--gob-guinda);
+}
+
+/* Pie de página discreto */
+.footer {
+  margin-top: auto;
+  text-align: center;
+  padding: 16px;
+  font-size: 0.8rem;
+  color: var(--texto-secundario);
+  border-top: 1px solid var(--borde-suave);
+  background-color: var(--bg-tarjeta);
+}
+
+.footer p {
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
   .logo {
-    height: 100px;
-    object-fit: contain;
+    height: 64px;
   }
-  
-  /* Contenedor principal */
+
   .container {
-    max-width: 480px;
-    margin: 20px auto 40px auto;
-    background: #ffffff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    width: calc(100% - 24px);
+    margin: 20px auto 28px auto;
+    padding: 24px 20px;
   }
-  
+
   h1 {
-    text-align: center;
-    margin-bottom: 5px;
-    color: #7A1F2B;
+    font-size: 1.45rem;
   }
-  
-  .subtitle {
-    text-align: center;
-    color: #666;
-    margin-bottom: 20px;
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
   }
-  
-  /* Selector */
-  #selectorTramite {
-    width: 100%;
-    padding: 12px;
-    margin-bottom: 20px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-  }
-  
-  /* Formulario */
-  form {
-    margin-top: 10px;
-  }
-  
-  input,
-  select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 12px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-  }
-  
-  /* Botón */
-  form button {
-    width: 100%;
-    padding: 12px;
-    background: #D8C7A3;
-    border: none;
-    color: #3a3a3a;
-    font-size: 16px;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  form button:hover {
-    background: #C2B28F;
-  }
-  
-  /* Utilidades */
-  .hidden {
-    display: none;
-  }
-  
-  .mensaje {
-    text-align: center;
-    margin-top: 10px;
-    font-weight: bold;
-  }
-  
-  /* MENSAJE DE ÉXITO (AGREGADO) */
-  .mensaje.exito {
-    color: #2e7d32; /* Verde formal institucional */
-  }
-  
-  /* MENSAJE GLOBAL (AGREGADO) */
-  #mensajeGlobal {
-    margin-bottom: 15px;
-  }
-  
-  /* Responsive */
-  @media (max-width: 600px) {
-    .logo {
-      height: 70px;
-    }
-  }
-  
+}
