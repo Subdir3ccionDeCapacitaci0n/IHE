@@ -2,64 +2,117 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Trámites Institucionales</title>
+  <title>Trámites Institucionales | Registro</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="styler.css">
 </head>
 <body>
-  <div class="header">
-    <img src="logo.jpeg" alt="Logo" class="logo">
-  </div>
+  <header class="header">
+    <div class="header-inner">
+      <img src="logo.jpeg" alt="Logotipo Institucional del Gobierno de México" class="logo">
+    </div>
+  </header>
 
-  <div class="container">
-    <h1>Registro</h1>
-    <p class="subtitle">Seleccione el trámite que desea realizar</p>
+  <main class="container">
+    <div class="card-header">
+      <span class="badge-institucional">Ventanilla Digital</span>
+      <h1>Registro de Trámites</h1>
+      <p class="subtitle">Seleccione el trámite institucional que desea realizar</p>
+    </div>
 
-    <p id="mensajeGlobal" class="mensaje hidden"></p>
+    <p id="mensajeGlobal" class="mensaje hidden" role="status" aria-live="polite"></p>
 
-    <select id="selectorTramite" onchange="seleccionarTramite(this.value)">
-      <option value="">Seleccione un trámite</option>
-      <option value="Beca_Comision">Beca Comisión</option>
-      <option value="Contrato_Sustituto">Sustituto de Becario</option>
-      <option value="Servicio_Social">Servicio Social, Prácticas y Estadías</option>
-      <option value="Servidor_Publico_Mes">Servidor Público del Mes</option>
-      <option value="Capacitacion">Capacitación</option>
-      <option value="Evaluaciones_Nuevo_Ingreso">Evaluaciones Nuevo Ingreso</option>
-    </select>
+    <div class="form-group selector-box">
+      <label for="selectorTramite">Tipo de trámite</label>
+      <select id="selectorTramite" onchange="seleccionarTramite(this.value)">
+        <option value="">Seleccione un trámite</option>
+        <option value="Beca_Comision">Beca Comisión</option>
+        <option value="Contrato_Sustituto">Sustituto de Becario</option>
+        <option value="Servicio_Social">Servicio Social, Prácticas y Estadías</option>
+        <option value="Servidor_Publico_Mes">Servidor Público del Mes</option>
+        <option value="Capacitacion">Capacitación</option>
+        <option value="Evaluaciones_Nuevo_Ingreso">Evaluaciones Nuevo Ingreso</option>
+      </select>
+    </div>
 
     <form id="formulario" class="hidden">
-      <h2 id="tituloTramite"></h2>
+      <div class="form-section-header">
+        <h2 id="tituloTramite"></h2>
+      </div>
 
-      <input type="text" id="nombre" placeholder="Nombre(s)" required>
-      <input type="text" id="apellidos" placeholder="Apellidos" required>
-      <input type="tel" id="telefono" placeholder="Número de teléfono" required>
-      <input type="email" id="correo" placeholder="Correo electrónico" required>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nombre">Nombre(s)</label>
+          <input type="text" id="nombre" name="nombre" placeholder="Ej. María Fernanda" autocomplete="given-name" required>
+        </div>
 
-      <select id="genero" required>
-        <option value="">Seleccione su género</option>
-        <option value="Hombre">Hombre</option>
-        <option value="Mujer">Mujer</option>
-      </select>
+        <div class="form-group">
+          <label for="apellidos">Apellidos</label>
+          <input type="text" id="apellidos" name="apellidos" placeholder="Ej. Hernández López" autocomplete="family-name" required>
+        </div>
+      </div>
 
-      <input type="text" id="direccion" placeholder="Dirección de procedencia" class="hidden">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="telefono">Número de teléfono (10 dígitos)</label>
+          <input
+            type="tel"
+            id="telefono"
+            name="telefono"
+            placeholder="Ej. 7711234567"
+            inputmode="numeric"
+            pattern="[0-9]{10}"
+            maxlength="10"
+            autocomplete="tel-national"
+            required
+          >
+        </div>
 
-      <select id="nivelEscolar" class="hidden">
-        <option value="">Seleccione nivel escolar</option>
-        <option value="Educación Inicial">Educación Inicial</option>
-        <option value="Preescolar">Preescolar</option>
-        <option value="Preescolar Indigena">Preescolar Indigena</option>
-        <option value="Educación Especial">Educación Especial</option>
-        <option value="Primaria Indigena">Primaria Indigena</option>
-        <option value="Primaria General">Primaria General</option>
-        <option value="Secundaria General">Secundaria General</option>
-        <option value="Secundaria Tecnica">Secundaria Tecnica</option>
-        <option value="Telesecundaria">Telesecundaria</option>
-      </select>
+        <div class="form-group">
+          <label for="correo">Correo electrónico</label>
+          <input type="email" id="correo" name="correo" placeholder="nombre@ejemplo.gob.mx" autocomplete="email" required>
+        </div>
+      </div>
 
-      <button type="submit">Enviar Registro</button>
-      <p id="mensaje" class="mensaje"></p>
+      <div class="form-group">
+        <label for="genero">Género</label>
+        <select id="genero" name="genero" required>
+          <option value="">Seleccione su género</option>
+          <option value="Hombre">Hombre</option>
+          <option value="Mujer">Mujer</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="direccion">Dirección de procedencia</label>
+        <input type="text" id="direccion" name="direccion" placeholder="Calle, número, colonia y municipio" class="hidden">
+      </div>
+
+      <div class="form-group">
+        <label for="nivelEscolar">Nivel escolar</label>
+        <select id="nivelEscolar" name="nivelEscolar" class="hidden">
+          <option value="">Seleccione nivel escolar</option>
+          <option value="Educación Inicial">Educación Inicial</option>
+          <option value="Preescolar">Preescolar</option>
+          <option value="Preescolar Indigena">Preescolar Indígena</option>
+          <option value="Educación Especial">Educación Especial</option>
+          <option value="Primaria Indigena">Primaria Indígena</option>
+          <option value="Primaria General">Primaria General</option>
+          <option value="Secundaria General">Secundaria General</option>
+          <option value="Secundaria Tecnica">Secundaria Técnica</option>
+          <option value="Telesecundaria">Telesecundaria</option>
+        </select>
+      </div>
+
+      <button type="submit" id="btnEnviar">Enviar Registro</button>
+
+      <p id="mensaje" class="mensaje" role="status" aria-live="polite"></p>
     </form>
-  </div>
+  </main>
+
+  <footer class="footer">
+    <p>Portal de Trámites Institucionales</p>
+  </footer>
 
   <script src="scriptr.js"></script>
 </body>
