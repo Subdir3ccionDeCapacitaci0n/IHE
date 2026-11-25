@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Panel de Trámites | Avisos en Tiempo Real</title>
+  <title>Panel de Trámites | Estación de Atención</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style_avisos.css">
 </head>
@@ -15,21 +15,24 @@
           <img src="logo.jpeg" alt="Logotipo Institucional" class="logo">
         </div>
         <div class="header-titulos">
-          <span class="badge-en-vivo">
-            <span class="dot-vivo" aria-hidden="true"></span>
-            Monitoreo en Tiempo Real
-          </span>
+          <div class="header-meta">
+            <span class="badge-en-vivo">
+              <span class="dot-vivo" aria-hidden="true"></span>
+              Sistema Activo en Tiempo Real
+            </span>
+            <span class="sub-area">Ventanilla de Atención Institucional</span>
+          </div>
           <h1>PANEL DE TRÁMITES</h1>
         </div>
       </div>
 
       <div class="reloj-box" aria-label="Hora actual">
-        <span class="reloj-label">HORA LOCAL</span>
+        <span class="reloj-label">HORA DEL SISTEMA</span>
         <div id="reloj">00:00:00</div>
       </div>
     </header>
 
-    <main>
+    <main class="tabla-contenedor">
       <div class="grid-header" role="row">
         <span>TIPO DE TRÁMITE</span>
         <span>USUARIO</span>
@@ -38,7 +41,7 @@
       </div>
 
       <ul id="listaAvisos" class="lista-avisos" aria-live="polite">
-        <!-- Los registros se insertan dinámicamente desde script_avisos.js -->
+        <!-- Filas generadas dinámicamente por script_avisos.js -->
       </ul>
 
       <div id="status" class="status" role="status" aria-live="polite">
